@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Equipment finance for dentists | JGO Lending</title>
+<meta name="description" content="Independent equipment, fit-out and practice finance for Australian dental practices. Your file read the way credit reads it, before it goes anywhere.">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap">
+<script>
+  const META_PIXEL_ID = "1427947952531869"; // JGO Lending pixel, shared across campaigns
+  const PIXEL_ACTIVE = META_PIXEL_ID !== "REPLACE_ME";
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  if (PIXEL_ACTIVE) {
+    fbq('init', META_PIXEL_ID);
+    fbq('track', 'PageView');
+  }
+
+  const FORM_ENDPOINT = "https://api.web3forms.com/submit";
+  const WEB3FORMS_ACCESS_KEY = "6c66eaa6-dfec-4394-a07e-a9e6f0b2f736"; // shared with the veterans and dev finance pages
+
+  /* Both guards are module scope, not storage, and are shared across the two
+     form instances. FormStart fires once per page view no matter which form
+     the visitor touches first; Lead fires once per successful submission. */
+  let formStarted = false;
+  let leadFired = false;
+
+  document.addEventListener('DOMContentLoaded', function(){
+
+    /* UTM capture. Read once on load, write into the hidden fields already
+       in the markup (both forms) so FormData always carries all four keys -
+       empty string when a param is absent, never omitted. */
+    const params = new URLSearchParams(window.location.search);
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'].forEach(function(key){
+      document.querySelectorAll('input[name="' + key + '"]').forEach(function(field){
+        field.value = (params.get(key) || '').slice(0, 200);
+      });
+    });
+
+    document.querySelectorAll('form.lead-form').forEach(function(form){
+      const scope       = form.closest('.s-enquire');
+      const submitBtn   = form.querySelector('.submit-btn');
+      const formError   = scope.querySelector('.form-error');
+      const formSuccess = scope.querySelector('.form-success');
+      const successHeading = formSuccess.querySelector('h3');
+      const companyField   = form.querySelector('input[name="company"]');
+
+      form.addEventListener('focusin', function(){
+        if (!formStarted){
+          formStarted = true;
+          if (PIXEL_ACTIVE && typeof fbq === 'function'){
+            fbq('trackCustom', 'FormStart');
+          }
+        }
+      });
+
+      form.addEventListener('submit', async function(e){
+        e.preventDefault();
+
+        if (companyField.value){
+          form.setAttribute('hidden', '');
+          formSuccess.removeAttribute('hidden');
+          successHeading.focus();
+          return;
+        }
+
+        formError.setAttribute('hidden', '');
+        submitBtn.disabled = true;
+        form.setAttribute('aria-busy', 'true');
+
+        const formData = new FormData(form);
+        formData.delete('company');
+        formData.append('access_key', WEB3FORMS_ACCESS_KEY);
+        formData.append('from_name', 'JGO Lending dental page');
+        formData.append('subject', 'Dental enquiry - ' + (formData.get('name') || ''));
+
+        try{
+          if (WEB3FORMS_ACCESS_KEY === 'REPLACE_ME'){
+            throw new Error('Form endpoint not configured');
+          }
+
+          const response = await fetch(FORM_ENDPOINT, {
+            method: 'POST',
+            body: formData,
+            headers: { 'Accept': 'application/json' }
+          });
+
+          const data = await response.json().catch(function(){ return null; });
+
+          if (!response.ok || (data && data.success === false)){
+            throw new Error('Submission rejected');
+          }
+
+          form.setAttribute('hidden', '');
+          formSuccess.removeAttribute('hidden');
+          successHeading.focus();
+
+          if (!leadFired && PIXEL_ACTIVE && typeof fbq === 'function'){
+            leadFired = true;
+            const eventId = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now()) + Math.random();
+            fbq('track', 'Lead', { content_name: 'dental-enquiry' }, { eventID: eventId });
+          }
+        } catch (err){
+          formError.removeAttribute('hidden');
+          submitBtn.disabled = false;
+          form.removeAttribute('aria-busy');
+        }
+      });
+    });
+
+    /* Sticky mobile CTA. Hides whenever either form is on screen, so it can
+       never sit over the form the visitor is trying to fill in. */
+    const stickyBar = document.getElementById('sticky-cta');
+    const forms = document.querySelectorAll('.s-enquire');
+    if (stickyBar && forms.length && 'IntersectionObserver' in window){
+      const visible = new Set();
+      const observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if (entry.isIntersecting){ visible.add(entry.target); }
+          else { visible.delete(entry.target); }
+        });
+        stickyBar.classList.toggle('is-hidden', visible.size > 0);
+      }, { threshold: 0 });
+      forms.forEach(function(f){ observer.observe(f); });
+    }
+  });
+</script>
+
+<noscript><img height="1" width="1" style="display:none" alt=""
+  src="https://www.facebook.com/tr?id=1427947952531869&ev=PageView&noscript=1"
+/></noscript>
+<style>
+  :root{
+    --jgo-black:      #0A0A0A;
+    --jgo-charcoal:   #282828;
+    --jgo-white:      #FFFFFF;
+    --jgo-gold-deep:  #9D722D;
+    --jgo-gold-mid:   #D8BD79;
+    --jgo-gold-bright:#E4C377;
+    --jgo-gold-light: #FAF7C8;
+
+    /* Light-body system. Neutrals carry a slight warm bias toward the gold
+       so they read as chosen rather than default grey. */
+    --ground:      #FFFFFF;
+    --ground-alt:  #F7F5F1;
+    --ink:         #1A1A1A;
+    --ink-soft:    #55504A;
+    --line-light:  rgba(26,24,22,0.14);
+    --field-bg:    #FFFFFF;
+
+    /* Dark hero and sticky bar only */
+    --line-dark:   rgba(255,255,255,0.14);
+    --text-muted:  #B3B3B3;
+
+    color-scheme: light;
+  }
+
+  *, *::before, *::after{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+  }
+
+  body{
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3{
+    font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+
+  p{ margin: 0; }
+
+  .wrap{
+    max-width: 1100px;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+  }
+
+  .section{
+    padding-block: clamp(2.75rem, 1.75rem + 4.5vw, 4.5rem);
+  }
+
+  .section-alt{ background: var(--ground-alt); }
+
+  .measure{ max-width: 42rem; }
+
+  .eyebrow{
+    font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 700;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    margin: 0;
+  }
+
+  /* Hero eyebrow - the campaign hook line. Sits on its own on the plain
+     dark ground, full width, so it can run large without wrapping
+     awkwardly over a photo or getting clipped. */
+  .hero-eyebrow{
+    font-size: clamp(1.75rem, 1.25rem + 2.2vw, 3.0625rem);
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    max-width: 34rem;
+  }
+
+  h1{
+    font-size: clamp(2rem, 1.3rem + 3.2vw, 3.25rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+  }
+
+  h2{
+    font-size: clamp(1.625rem, 1.05rem + 2.4vw, 2.375rem);
+    font-weight: 800;
+    line-height: 1.12;
+  }
+
+  h3{
+    font-size: clamp(1.1875rem, 1.05rem + 0.6vw, 1.375rem);
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .body-text{
+    font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.125rem);
+    font-weight: 400;
+    color: var(--ink);
+  }
+
+  .small-text{
+    font-size: clamp(0.8125rem, 0.77rem + 0.19vw, 0.875rem);
+    color: var(--ink-soft);
+  }
+
+  /* Gold gradient text. Full bright ramp on the dark hero; the deep half of
+     the same ramp on light ground, where the pale end would be invisible. */
+  .gx{ color: var(--jgo-gold-deep); }
+
+  @supports (background-clip: text) or (-webkit-background-clip: text){
+    .gx{
+      background: linear-gradient(180deg, #C9932F 0%, #9D722D 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero .gx{
+      background: linear-gradient(180deg, #FAF7C8 0%, #E4C377 42%, #9D722D 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  }
+
+  .gx.line{ display: block; }
+
+  .rule{
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(90deg, transparent 0%, #9D722D 18%, #C9932F 50%, #9D722D 82%, transparent 100%);
+    border: 0;
+  }
+
+  /* Buttons */
+  .btn{
+    display: inline-block;
+    background: linear-gradient(180deg, #FAF7C8 0%, #E4C377 42%, #9D722D 100%);
+    color: var(--jgo-black);
+    font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 800;
+    font-size: 0.9375rem;
+    letter-spacing: 0.04em;
+    padding: 0.9rem 2rem;
+    border-radius: 999px;
+    border: 0;
+    min-height: 48px;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .btn:hover{ filter: brightness(1.06); }
+  .btn:disabled{ cursor: not-allowed; filter: brightness(0.92); }
+
+  .btn-hero{ width: 100%; }
+  @media (min-width: 480px){
+    .btn-hero{ width: auto; }
+  }
+  .btn-form{ width: 100%; }
+
+  .call-link{
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .call-link:hover{ text-decoration: underline; }
+  .call-link svg{ width: 15px; height: 15px; flex-shrink: 0; }
+
+  :focus-visible{
+    outline: 3px solid var(--jgo-gold-deep);
+    outline-offset: 2px;
+  }
+  input:focus, select:focus, summary:focus, button:focus, a:focus{
+    outline: 3px solid var(--jgo-gold-deep);
+    outline-offset: 2px;
+  }
+  .hero :focus-visible, .hero a:focus{
+    outline: 3px solid var(--jgo-gold-mid);
+    outline-offset: 2px;
+  }
+
+  /* ------------------------------------------------------------------
+     Hero. Dark band, text and real photo. Everything after it is white.
+     ------------------------------------------------------------------ */
+  .hero{
+    background: radial-gradient(ellipse 120% 90% at 50% 42%, #282828 0%, #161616 55%, #0A0A0A 100%);
+    background-color: var(--jgo-black);
+    color: var(--jgo-white);
+    padding: 1.5rem 0 clamp(2rem, 1.3rem + 3vw, 3rem);
+  }
+  .hero h1{ color: var(--jgo-white); }
+  .hero .body-text{ color: var(--jgo-white); }
+  .hero .small-text{ color: var(--text-muted); }
+  .hero .eyebrow{ color: var(--jgo-gold-mid); }
+
+  .hero-logo{
+    height: 40px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  @media (min-width: 900px){
+    .hero-logo{ height: 52px; }
+  }
+  .logo-img{ display: block; height: 40px; width: auto; }
+  @media (min-width: 900px){
+    .logo-img{ height: 52px; }
+  }
+
+  .hero .eyebrow{ margin-bottom: 0.75rem; }
+  .hero .hero-eyebrow{ margin-bottom: 1.5rem; }
+  .hero h1{ margin-bottom: 1.25rem; }
+  .hero .hero-sub{ margin-bottom: 1.5rem; max-width: 36rem; }
+  .hero .hero-actions{ display: flex; flex-direction: column; align-items: flex-start; gap: 0.9rem; }
+
+  /* Hero portrait sits beside the headline from 900px - real photo, not
+     stock, showing James's face at the top of the page. */
+  .hero-grid{ display: block; }
+  @media (min-width: 900px){
+    .hero-grid{
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 3rem;
+      align-items: center;
+    }
+  }
+  .hero-portrait{ margin: 1.75rem 0 0; max-width: 20rem; }
+  @media (min-width: 900px){
+    .hero-portrait{ margin: 0; max-width: none; }
+  }
+  .hero-portrait img{
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+  }
+
+  /* ------------------------------------------------------------------
+     Enquire (top). Copy left, form right from 900px - the form sits
+     directly under the hero with no intervening section.
+     ------------------------------------------------------------------ */
+  .s-enquire{ scroll-margin-top: 1.5rem; }
+  .s-enquire h2{ margin-bottom: 1.25rem; }
+  .s-enquire .intro{ margin-bottom: 2rem; }
+
+  .enquire-grid{ display: block; }
+  @media (min-width: 900px){
+    #enquire .enquire-grid{
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+      gap: 3.5rem;
+      align-items: start;
+    }
+    #enquire .enquire-grid .s-enquire h2{ margin-bottom: 1rem; }
+    #enquire .enquire-grid .intro{ margin-bottom: 0; }
+  }
+
+  .lead-form{ max-width: 34rem; }
+  #enquire-bottom .lead-form{ max-width: 34rem; margin-inline: auto; }
+  #enquire-bottom .wrap > .intro-bottom{ max-width: 34rem; margin-inline: auto; margin-bottom: 2rem; text-align: center; }
+
+  .field{ margin-top: 1.25rem; }
+  .field:first-child{ margin-top: 0; }
+
+  @media (min-width: 560px){
+    .field-row{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .field-row .field{ margin-top: 1.25rem; }
+  }
+
+  label{
+    display: block;
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  select{
+    width: 100%;
+    background: var(--field-bg);
+    border: 1px solid var(--line-light);
+    border-radius: 4px;
+    color: var(--ink);
+    font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+    font-size: 1rem;
+    padding: 0.8rem 1rem;
+  }
+  input::placeholder{ color: var(--ink-soft); opacity: 0.65; }
+
+  .hp{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .form-error{
+    margin-top: 1.5rem;
+    padding-left: 0.75rem;
+    border-left: 3px solid var(--jgo-gold-deep);
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .form-actions{ margin-top: 1.75rem; }
+
+  .form-success h3{ margin-bottom: 1rem; }
+  .form-success p{ max-width: 40rem; }
+
+  /* Section 3 - the moment */
+  .s-moment h2{ margin-bottom: 1.25rem; }
+  .s-moment p + p{ margin-top: 1rem; }
+
+  /* Section 4 - three ways to finance it */
+  .s-ways h2{ margin-bottom: 1.75rem; }
+  .cards{
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+  @media (min-width: 900px){
+    .cards{
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+  }
+  .card{
+    padding: 1.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--line-light);
+    background: var(--ground);
+  }
+  .section-alt .card{ background: var(--ground); }
+  .card h3{ margin-bottom: 0.5rem; }
+  .card-gold{
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--ground), var(--ground)) padding-box,
+      linear-gradient(180deg, #C9932F 0%, #9D722D 100%) border-box;
+  }
+
+  /* Office photo break - the approved room shot, shown large and full-
+     bleed, no text over it. A visual pause between the pitch and the
+     credibility section. */
+  .s-office{ width: 100%; }
+  .office-img{
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: clamp(360px, 62vw, 760px);
+    object-fit: cover;
+  }
+
+  /* Section 6 - FAQ */
+  .visually-hidden{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .faq-list{ border-top: 1px solid var(--line-light); }
+  .faq-item{ border-bottom: 1px solid var(--line-light); }
+  .faq-item summary{
+    cursor: pointer;
+    list-style: none;
+    padding: 1.25rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  .faq-item summary::-webkit-details-marker{ display: none; }
+  .faq-item summary::after{
+    content: "+";
+    color: var(--jgo-gold-deep);
+    font-weight: 700;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+  .faq-item[open] summary::after{ content: "\2212"; }
+  .faq-item .faq-answer{ padding: 0 0 1.5rem; max-width: 42rem; }
+
+  /* Section 7 - testimonials */
+  .s-testimonials h2{ margin-bottom: 1.75rem; }
+  .testimonial-list{ display: grid; gap: 2rem; }
+  @media (min-width: 900px){
+    .testimonial-list{
+      grid-template-columns: repeat(2, 1fr);
+      max-width: 46rem;
+      gap: 2rem;
+      align-items: start;
+    }
+  }
+  .testimonial-item{ margin: 0; }
+  .testimonial-item::before{
+    content: "\201C";
+    display: block;
+    font-weight: 900;
+    font-size: 3rem;
+    line-height: 1;
+    height: 2.25rem;
+    background: linear-gradient(180deg, #C9932F 0%, #9D722D 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .testimonial-item blockquote{ margin: 0 0 1rem; }
+
+  /* Sticky mobile CTA */
+  #sticky-cta{
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    display: flex;
+    align-items: stretch;
+    gap: 0.6rem;
+    padding: 0.75rem clamp(1rem, 4vw, 1.5rem);
+    background: rgba(10,10,10,0.96);
+    border-top: 1px solid rgba(255,255,255,0.12);
+    transform: translateY(0);
+    transition: transform 180ms ease;
+  }
+  #sticky-cta.is-hidden{ transform: translateY(110%); }
+  #sticky-cta .btn{ flex: 1; padding-block: 0.875rem; min-height: 52px; letter-spacing: 0.02em; }
+  #sticky-cta .sticky-call{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    min-height: 52px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--jgo-white);
+    flex-shrink: 0;
+  }
+  #sticky-cta .sticky-call svg{ width: 20px; height: 20px; }
+  @media (prefers-reduced-motion: reduce){
+    #sticky-cta{ transition: none; }
+  }
+  @media (min-width: 900px){
+    #sticky-cta{ display: none; }
+  }
+
+  /* Footer */
+  .footer{
+    padding-block: clamp(2.5rem, 2rem + 3vw, 3.5rem);
+    background: var(--ground-alt);
+  }
+  .footer .rule{ margin-bottom: clamp(2.5rem, 2rem + 3vw, 3.5rem); }
+  .footer p{
+    font-size: 13px;
+    color: var(--ink-soft);
+    max-width: 38rem;
+  }
+  .footer p + p{ margin-top: 1rem; }
+  .footer a{ color: var(--ink-soft); }
+  .footer .footer-call{ font-weight: 600; color: var(--ink); }
+
+  /* Keep the footer clear of the sticky bar on mobile. */
+  @media (max-width: 899px){
+    .footer{ padding-bottom: 7rem; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero has-portrait" id="hero">
+  <div class="wrap">
+    <div class="hero-logo">
+      <img src="assets/jgo-logo-white.png" alt="JGO Lending" class="logo-img" width="503" height="156">
+    </div>
+    <p class="eyebrow gx hero-eyebrow">EQUIPMENT FINANCE FOR DENTISTS</p>
+
+    <div class="hero-grid">
+      <div>
+        <h1>The rep's finance guy works for the rep. <span class="gx line">Your broker should work for you.</span></h1>
+        <p class="body-text hero-sub">Independent equipment, fit-out and practice finance for Australian dental practices. Your file read the way credit reads it, before it goes anywhere.</p>
+        <div class="hero-actions">
+          <a href="#enquire" class="btn btn-hero">Get your finance check</a>
+          <p class="small-text">An enquiry, not an application. Nothing is lodged until you say so.</p>
+        </div>
+      </div>
+      <figure class="hero-portrait">
+        <img src="assets/james-portrait.jpg" alt="James O'Brien, JGO Lending" width="1080" height="1350">
+      </figure>
+    </div>
+  </div>
+</section>
+
+<main>
+
+<!-- FORM, position 1 of 2. Directly under the hero - the anchor target for
+     lower-funnel ads, and where every CTA on the page jumps to. -->
+<section class="section s-enquire" id="enquire">
+  <div class="wrap">
+    <div class="enquire-grid">
+      <div>
+        <h2>Thinking about starting, upgrading or expanding your dental practice?</h2>
+        <p class="body-text intro">We help dentists finance the equipment, fit-out and investment behind their next move.</p>
+      </div>
+
+      <div>
+        <form class="lead-form" id="lead-form-top" method="post">
+          <div class="hp" aria-hidden="true">
+            <label for="company-t">Company</label>
+            <input type="text" id="company-t" name="company" tabindex="-1" autocomplete="off">
+          </div>
+
+          <input type="hidden" name="utm_source" value="">
+          <input type="hidden" name="utm_medium" value="">
+          <input type="hidden" name="utm_campaign" value="">
+          <input type="hidden" name="utm_content" value="">
+
+          <div class="field-row">
+            <div class="field">
+              <label for="name-t">Name</label>
+              <input type="text" id="name-t" name="name" required autocomplete="name">
+            </div>
+
+            <div class="field">
+              <label for="mobile-t">Mobile</label>
+              <input type="tel" id="mobile-t" name="mobile" required autocomplete="tel" inputmode="tel">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="email-t">Email</label>
+            <input type="email" id="email-t" name="email" required autocomplete="email">
+          </div>
+
+          <div class="field">
+            <label for="practice_stage-t">Where is the practice at?</label>
+            <select id="practice_stage-t" name="practice_stage" required>
+              <option value="" disabled selected>Select one</option>
+              <option value="I own a practice">I own a practice</option>
+              <option value="I'm buying a practice">I'm buying a practice</option>
+              <option value="I'm setting one up">I'm setting one up</option>
+              <option value="Not sure yet">Not sure yet</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="amount-t">How much are you looking to borrow?</label>
+            <select id="amount-t" name="amount" required>
+              <option value="" disabled selected>Select one</option>
+              <option value="Under $50,000">Under $50,000</option>
+              <option value="$50,000 - $150,000">$50,000 - $150,000</option>
+              <option value="$150,000 - $500,000">$150,000 - $500,000</option>
+              <option value="$500,000+">$500,000+</option>
+              <option value="Not sure yet">Not sure yet</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="purchase-t">What are you looking at buying?</label>
+            <input type="text" id="purchase-t" name="purchase" placeholder="e.g. a chair, a mill, a CBCT, a full fit-out">
+          </div>
+
+          <p class="form-error small-text" role="alert" hidden>That did not send. Try again, or email james.obrien@jgolending.com.au.</p>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-form submit-btn">Get your finance check</button>
+          </div>
+        </form>
+
+        <div class="form-success" hidden>
+          <h3 tabindex="-1">Done. James will be in touch within one business day.</h3>
+          <p class="body-text">Nothing has been lodged anywhere. If you would rather talk sooner, reply to the confirmation email.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt s-moment" id="moment">
+  <div class="wrap">
+    <h2>The finance form is already attached to the quote.</h2>
+    <div class="measure">
+      <p class="body-text">The rep has the quote open. Supplier finance is right there on it - fast, convenient, and everyone in that room works for the same side of the table.</p>
+      <p class="body-text">Your bank is the other route. It knows you, and that counts for something. It also has one product and one appetite for dental.</p>
+      <p class="body-text">Nobody in either conversation is comparing the market for the person paying. That is the gap, and it costs a practice for five years.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section s-ways" id="ways">
+  <div class="wrap">
+    <h2>Three ways to finance it. <span class="gx line">One of them works for you.</span></h2>
+    <div class="cards">
+      <article class="card">
+        <h3>Supplier finance</h3>
+        <p class="body-text">Fast. One lender. Works for the supplier.</p>
+      </article>
+      <article class="card">
+        <h3>Your bank</h3>
+        <p class="body-text">Familiar. One lender. One appetite for dental.</p>
+      </article>
+      <article class="card card-gold">
+        <h3>Independent broker</h3>
+        <p class="body-text">A panel of lenders. Your file read first. Works for you.</p>
+      </article>
+    </div>
+    <!-- CONFIRM BEFORE PUBLISH: fit-out and practice establishment lending is in scope -->
+    <p class="body-text measure">The chair is the easy part. Fit-out, the steri room, software and the first six months of cash flow are the actual facility. A broker who only writes equipment finance has handed you a third of a solution.</p>
+  </div>
+</section>
+
+<!-- The approved room photo, shown large and full-bleed as a visual pause -
+     no text over it, so there is no legibility constraint on the crop. -->
+<section class="s-office" id="office">
+  <img src="assets/dental-hero.jpg" alt="A dental practice fitted out with equipment financed the same way" class="office-img" width="1800" height="1296">
+</section>
+
+<section class="section s-faq" id="faq">
+  <div class="wrap">
+    <h2 class="visually-hidden">Frequently asked questions</h2>
+    <div class="faq-list">
+      <details class="faq-item" open>
+        <summary><h3 style="display:inline;">Can I finance the equipment as well as the fit-out?</h3></summary>
+        <p class="body-text faq-answer">Yes. Depending on the lender and your circumstances, finance can potentially cover dental equipment, fit-out costs and other practice setup expenses.</p>
+      </details>
+      <details class="faq-item">
+        <summary><h3 style="display:inline;">Can I buy equipment for an existing practice?</h3></summary>
+        <p class="body-text faq-answer">Yes. We can look at finance for replacing or upgrading existing equipment, including major purchases such as chairs, imaging and sterilisation equipment.</p>
+      </details>
+      <details class="faq-item">
+        <summary><h3 style="display:inline;">I'm starting a new practice - can you help with the whole setup?</h3></summary>
+        <p class="body-text faq-answer">Yes. We can look at the overall funding requirement rather than just one piece of equipment, including equipment, fit-out and other eligible setup costs.</p>
+      </details>
+      <details class="faq-item">
+        <summary><h3 style="display:inline;">Do I need a 20% deposit?</h3></summary>
+        <p class="body-text faq-answer">Not necessarily. The deposit or equity contribution required depends on the lender, the asset, your financial position and the overall deal.</p>
+      </details>
+      <details class="faq-item">
+        <summary><h3 style="display:inline;">I already have a bank. Can you still help?</h3></summary>
+        <p class="body-text faq-answer">Absolutely. We can compare options across our lender panel rather than assuming your existing bank is the best option.</p>
+      </details>
+      <details class="faq-item">
+        <summary><h3 style="display:inline;">Will applying affect my credit file?</h3></summary>
+        <p class="body-text faq-answer">We can discuss your circumstances and the appropriate options before proceeding with an application. No need to blindly apply everywhere.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS: the same real, verified Facebook recommendations already
+     live on the veterans page (James O'Brien - Mortgage Broker page, June
+     2026), quoted verbatim. They speak to broker service generally, not to
+     any dental-specific claim, so they are honest to reuse here. Headed
+     "What clients say" rather than anything dental-specific, because these
+     reviewers' practice area is not stated in the reviews. No star
+     graphics: Facebook uses recommendations, not stars. Do not invent or
+     edit a quote. -->
+<section class="section section-alt s-testimonials" id="testimonials">
+  <div class="wrap">
+    <h2>What clients <span class="gx">say</span></h2>
+    <div class="testimonial-list">
+      <figure class="testimonial-item">
+        <blockquote class="body-text">James made the entire finance process very simple &amp; stress free. He was professional, responsive &amp; always available to answer any questions. 10/10 highly recommend James.</blockquote>
+        <figcaption class="small-text">Dan Lincoln &middot; Facebook review, June 2026</figcaption>
+      </figure>
+      <figure class="testimonial-item">
+        <blockquote class="body-text">We couldn't recommend James highly enough. From start to finish, he was professional, knowledgeable, and genuinely invested in helping us achieve our financial goals.<br><br>What really sets James apart is his personal experience in property development. Having someone who understands property from both the finance and development side gave us confidence that we were being offered finance that best suited our direct needs.</blockquote>
+        <figcaption class="small-text">Brendan Kent &middot; Facebook review, June 2026</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- FORM, position 2 of 2. Same fields, same handler, for readers who scroll all the way down. -->
+<section class="section s-enquire" id="enquire-bottom">
+  <div class="wrap">
+    <hr class="rule" style="margin-bottom:clamp(2.5rem,2rem + 3vw,3.5rem);">
+    <div class="intro-bottom">
+      <h2>A form, not an appointment. <span class="gx line">Nothing to send.</span></h2>
+      <p class="body-text intro">Tell us where you're at and James will come back to you.</p>
+    </div>
+
+    <form class="lead-form" id="lead-form-bottom" method="post">
+      <div class="hp" aria-hidden="true">
+        <label for="company-b">Company</label>
+        <input type="text" id="company-b" name="company" tabindex="-1" autocomplete="off">
+      </div>
+
+      <input type="hidden" name="utm_source" value="">
+      <input type="hidden" name="utm_medium" value="">
+      <input type="hidden" name="utm_campaign" value="">
+      <input type="hidden" name="utm_content" value="">
+
+      <div class="field-row">
+        <div class="field">
+          <label for="name-b">Name</label>
+          <input type="text" id="name-b" name="name" required autocomplete="name">
+        </div>
+
+        <div class="field">
+          <label for="mobile-b">Mobile</label>
+          <input type="tel" id="mobile-b" name="mobile" required autocomplete="tel" inputmode="tel">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="email-b">Email</label>
+        <input type="email" id="email-b" name="email" required autocomplete="email">
+      </div>
+
+      <div class="field">
+        <label for="practice_stage-b">Where is the practice at?</label>
+        <select id="practice_stage-b" name="practice_stage" required>
+          <option value="" disabled selected>Select one</option>
+          <option value="I own a practice">I own a practice</option>
+          <option value="I'm buying a practice">I'm buying a practice</option>
+          <option value="I'm setting one up">I'm setting one up</option>
+          <option value="Not sure yet">Not sure yet</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="amount-b">How much are you looking to borrow?</label>
+        <select id="amount-b" name="amount" required>
+          <option value="" disabled selected>Select one</option>
+          <option value="Under $50,000">Under $50,000</option>
+          <option value="$50,000 - $150,000">$50,000 - $150,000</option>
+          <option value="$150,000 - $500,000">$150,000 - $500,000</option>
+          <option value="$500,000+">$500,000+</option>
+          <option value="Not sure yet">Not sure yet</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="purchase-b">What are you looking at buying?</label>
+        <input type="text" id="purchase-b" name="purchase" placeholder="e.g. a chair, a mill, a CBCT, a full fit-out">
+      </div>
+
+      <p class="form-error small-text" role="alert" hidden>That did not send. Try again, or email james.obrien@jgolending.com.au.</p>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-form submit-btn">Get your finance check</button>
+      </div>
+    </form>
+
+    <div class="form-success" hidden>
+      <h3 tabindex="-1">Done. James will be in touch within one business day.</h3>
+      <p class="body-text">Nothing has been lodged anywhere. If you would rather talk sooner, reply to the confirmation email.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <hr class="rule">
+    <p>JGO Lending &middot; Equipment Finance Specialist &middot; <a class="footer-call" href="tel:+61431294276">0431 294 276</a></p>
+    <p>James O'Brien is a Credit Representative (Credit Representative Number 578547) of Australian Finance Group Ltd, Australian Credit Licence 389087.</p>
+    <p>Commercial equipment finance is not regulated under the National Consumer Credit Protection Act. All applications are subject to lender assessment and approval is not guaranteed.</p>
+    <p><a href="https://afgonline.com.au/privacy-policy/">Privacy Policy (Australian Finance Group Ltd)</a></p>
+  </div>
+</footer>
+
+<div id="sticky-cta" class="is-hidden">
+  <a href="tel:+61431294276" class="sticky-call" aria-label="Call James on 0431 294 276">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+  </a>
+  <a href="#enquire" class="btn">Get your finance check</a>
+</div>
+
+</body>
+</html>

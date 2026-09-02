@@ -1,0 +1,22 @@
+{
+  // Cloudflare config: pure static hosting. No Worker code runs here - the
+  // form posts directly from the browser to Web3Forms (see the access key
+  // in dental/index.html, shared with the veterans and dev finance pages).
+  "name": "dental-landing-page",
+  "compatibility_date": "2026-09-02",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "dental"
+  },
+  // Once dental.jgolending.com.au is added as a Custom Domain for this
+  // Worker in the Cloudflare dashboard, this route keeps future deploys
+  // pinned to it automatically.
+  "routes": [
+    {
+      "pattern": "dental.jgolending.com.au",
+      "custom_domain": true
+    }
+  ]
+}
